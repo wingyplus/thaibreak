@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            build-essential cmake autoconf automake libtool pkg-config \
+            libncurses-dev libssl-dev git curl unzip
+
+      - name: Set up Erlang/OTP
+        uses: erlef/setup-beam@v1
+        with:
+          otp-version: "28"
+          elixir-version: "1.19"
+
+      - name: Cache Mix dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-mix-${{ hashFiles('mix.lock') }}
+          restore-keys: ${{ runner.os }}-mix-
+
+      - name: Cache CMake build (vendor libs)
+        uses: actions/cache@v4
+        with:
+          path: _cmake_build/vendor
+          key: ${{ runner.os }}-cmake-${{ hashFiles('CMakeLists.txt') }}
+
+      - name: Install Mix dependencies
+        run: mix deps.get
+
+      - name: Compile (builds NIF via CMake)
+        run: mix compile
+
+      - name: Run tests
+        run: mix test
