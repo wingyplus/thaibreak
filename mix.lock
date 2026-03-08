@@ -1,4 +1,4 @@
 %{
-  "elixir_make": {:git, "https://github.com/elixir-lang/elixir_make.git", "69cd9f4d233a00e5e17c0fa53deedde69e40f621", []},
-  "fine": {:git, "https://github.com/elixir-nx/fine.git", "a1be2f8da69946c6e0c9011ab4933afde408f1bc", []},
+  "elixir_make": {:hex, :elixir_make, "0.9.0", "6484b3cd8c0cee58f09f05ecaf1a140a8c97670671a6a0e7ab4dc326c3109726", [:mix], [], "hexpm", "db23d4fd8b757462ad02f8aa73431a426fe6671c80b200d9710caf3d1dd0ffdb"},
+  "fine": {:git, "https://github.com/elixir-nx/fine.git", "a1be2f8da69946c6e0c9011ab4933afde408f1bc", [branch: "main"]},
 }
