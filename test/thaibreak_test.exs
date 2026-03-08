@@ -69,6 +69,7 @@ defmodule ThaibreakTest do
 
       for sentence <- sentences do
         words = Thaibreak.segment(sentence)
+
         assert Enum.join(words) == sentence,
                "Failed to preserve text for: #{sentence}, got: #{inspect(words)}"
       end

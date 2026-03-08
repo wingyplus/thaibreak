@@ -25,12 +25,9 @@ endif()
 # ---- Dependencies install prefix ----
 set(DEPS_PREFIX ${CMAKE_BINARY_DIR}/vendor)
 
-# Touch autotools-generated files so make doesn't try to regenerate them
-# (avoids "Makefile.in is older than Makefile.am" issues in out-of-source builds)
-set(TOUCH_AUTOTOOLS
-  find <SOURCE_DIR> -name "Makefile.in" -o -name "configure" -o -name "aclocal.m4"
-    | xargs touch
-)
+# Disable autotools regeneration by overriding tools via make command-line
+# variables (higher precedence than Makefile definitions).
+set(NO_AUTORECONF AUTOMAKE=true ACLOCAL=true AUTOCONF=true)
 
 # ---- libdatrie (required by libthai) ----
 ExternalProject_Add(libdatrie_ext
@@ -46,8 +43,8 @@ ExternalProject_Add(libdatrie_ext
       --disable-shared
       --disable-dependency-tracking
       CFLAGS=-fPIC
-  BUILD_COMMAND     make -j4
-  INSTALL_COMMAND   make install
+  BUILD_COMMAND     make -j4 ${NO_AUTORECONF}
+  INSTALL_COMMAND   make -j1 install ${NO_AUTORECONF}
   BUILD_IN_SOURCE   FALSE
 )
 
@@ -70,8 +67,8 @@ ExternalProject_Add(libthai_ext
       LDFLAGS=-L${DEPS_PREFIX}/lib
       PKG_CONFIG_PATH=${DEPS_PREFIX}/lib/pkgconfig
       PATH=${DEPS_PREFIX}/bin:$ENV{PATH}
-  BUILD_COMMAND     ${CMAKE_COMMAND} -E env PATH=${DEPS_PREFIX}/bin:$ENV{PATH} make -j4
-  INSTALL_COMMAND   ${CMAKE_COMMAND} -E env PATH=${DEPS_PREFIX}/bin:$ENV{PATH} make install
+  BUILD_COMMAND     ${CMAKE_COMMAND} -E env PATH=${DEPS_PREFIX}/bin:$ENV{PATH} make -j4 ${NO_AUTORECONF}
+  INSTALL_COMMAND   ${CMAKE_COMMAND} -E env PATH=${DEPS_PREFIX}/bin:$ENV{PATH} make install ${NO_AUTORECONF}
   BUILD_IN_SOURCE   FALSE
 )
 
@@ -105,3 +102,9 @@ set_target_properties(thaibreak PROPERTIES
   SUFFIX                    ".so"
   LIBRARY_OUTPUT_DIRECTORY  ${PRIV_DIR}
 )
+
+# On macOS the NIF is loaded via dlopen; Erlang VM symbols are resolved
+# at load time, so we must not link against liberl directly.
+if(APPLE)
+  target_link_options(thaibreak PRIVATE -undefined dynamic_lookup)
+endif()

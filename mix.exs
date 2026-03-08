@@ -21,8 +21,8 @@ defmodule Thaibreak.MixProject do
 
   defp deps do
     [
-      {:elixir_make, github: "elixir-lang/elixir_make", runtime: false},
-      {:fine, github: "elixir-nx/fine", runtime: false}
+      {:elixir_make, "~> 0.9", runtime: false},
+      {:fine, github: "elixir-nx/fine", branch: "main", runtime: false}
     ]
   end
 end
