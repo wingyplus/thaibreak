@@ -2,20 +2,20 @@ defmodule ThaibreakTest do
   use ExUnit.Case
   doctest Thaibreak
 
-  describe "break_words/1" do
+  describe "segment/1" do
     test "breaks a simple greeting" do
-      assert Thaibreak.break_words("สวัสดีครับ") == ["สวัสดี", "ครับ"]
+      assert Thaibreak.segment("สวัสดีครับ") == ["สวัสดี", "ครับ"]
     end
 
     test "breaks a meal-time question" do
       # "Have you eaten yet?"
-      words = Thaibreak.break_words("กินข้าวแล้วหรือยัง")
+      words = Thaibreak.segment("กินข้าวแล้วหรือยัง")
       assert words == ["กิน", "ข้าว", "แล้ว", "หรือ", "ยัง"]
     end
 
     test "breaks a sentence about Thai language" do
       # "Thai language is beautiful"
-      words = Thaibreak.break_words("ภาษาไทยสวยงาม")
+      words = Thaibreak.segment("ภาษาไทยสวยงาม")
       assert is_list(words)
       assert length(words) > 1
       assert Enum.join(words) == "ภาษาไทยสวยงาม"
@@ -23,14 +23,14 @@ defmodule ThaibreakTest do
 
     test "breaks common nouns" do
       # "cat dog elephant"
-      words = Thaibreak.break_words("แมวหมาช้าง")
+      words = Thaibreak.segment("แมวหมาช้าง")
       assert is_list(words)
       assert Enum.join(words) == "แมวหมาช้าง"
     end
 
     test "breaks a news-style sentence" do
       # "The weather today is very hot"
-      words = Thaibreak.break_words("อากาศวันนี้ร้อนมาก")
+      words = Thaibreak.segment("อากาศวันนี้ร้อนมาก")
       assert is_list(words)
       assert length(words) > 1
       assert Enum.join(words) == "อากาศวันนี้ร้อนมาก"
@@ -38,24 +38,24 @@ defmodule ThaibreakTest do
 
     test "breaks a sentence about food" do
       # "I want to eat spicy papaya salad"
-      words = Thaibreak.break_words("อยากกินส้มตำรสเผ็ด")
+      words = Thaibreak.segment("อยากกินส้มตำรสเผ็ด")
       assert is_list(words)
       assert length(words) > 1
       assert Enum.join(words) == "อยากกินส้มตำรสเผ็ด"
     end
 
     test "handles a single Thai word" do
-      words = Thaibreak.break_words("ไทย")
+      words = Thaibreak.segment("ไทย")
       assert is_list(words)
       assert Enum.join(words) == "ไทย"
     end
 
     test "handles empty string" do
-      assert Thaibreak.break_words("") == [""]
+      assert Thaibreak.segment("") == [""]
     end
 
     test "handles ASCII-only text" do
-      result = Thaibreak.break_words("hello world")
+      result = Thaibreak.segment("hello world")
       assert Enum.join(result) == "hello world"
     end
 
@@ -68,14 +68,14 @@ defmodule ThaibreakTest do
       ]
 
       for sentence <- sentences do
-        words = Thaibreak.break_words(sentence)
+        words = Thaibreak.segment(sentence)
         assert Enum.join(words) == sentence,
                "Failed to preserve text for: #{sentence}, got: #{inspect(words)}"
       end
     end
 
     test "returns a list of valid UTF-8 strings" do
-      words = Thaibreak.break_words("สวัสดีประเทศไทย")
+      words = Thaibreak.segment("สวัสดีประเทศไทย")
 
       for word <- words do
         assert is_binary(word)
@@ -108,12 +108,12 @@ defmodule ThaibreakTest do
       assert result == "สวัสดี|ครับ"
     end
 
-    test "insert_breaks result splits back to same words as break_words" do
+    test "insert_breaks result splits back to same words as segment" do
       text = "กินข้าวแล้วหรือยัง"
       delim = "@@"
       broken = Thaibreak.insert_breaks(text, delim)
       via_insert = String.split(broken, delim)
-      via_break = Thaibreak.break_words(text)
+      via_break = Thaibreak.segment(text)
       assert via_insert == via_break
     end
 
@@ -126,8 +126,8 @@ defmodule ThaibreakTest do
 
   describe "word count" do
     test "counts words correctly for known sentences" do
-      assert length(Thaibreak.break_words("สวัสดีครับ")) == 2
-      assert length(Thaibreak.break_words("กินข้าวแล้วหรือยัง")) == 5
+      assert length(Thaibreak.segment("สวัสดีครับ")) == 2
+      assert length(Thaibreak.segment("กินข้าวแล้วหรือยัง")) == 5
     end
   end
 end

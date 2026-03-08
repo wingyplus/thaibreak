@@ -7,7 +7,7 @@ defmodule Thaibreak do
 
   ## Examples
 
-      iex> Thaibreak.break_words("สวัสดีครับ")
+      iex> Thaibreak.segment("สวัสดีครับ")
       ["สวัสดี", "ครับ"]
 
       iex> Thaibreak.insert_breaks("สวัสดีครับ", "|")
@@ -25,15 +25,15 @@ defmodule Thaibreak do
 
   ## Examples
 
-      iex> Thaibreak.break_words("สวัสดีครับ")
+      iex> Thaibreak.segment("สวัสดีครับ")
       ["สวัสดี", "ครับ"]
 
-      iex> Thaibreak.break_words("กินข้าวแล้วหรือยัง")
+      iex> Thaibreak.segment("กินข้าวแล้วหรือยัง")
       ["กิน", "ข้าว", "แล้ว", "หรือ", "ยัง"]
 
   """
-  @spec break_words(String.t()) :: [String.t()]
-  def break_words(text) when is_binary(text) do
+  @spec segment(String.t()) :: [String.t()]
+  def segment(text) when is_binary(text) do
     positions = NIF.find_breaks(text)
     split_at_positions(text, positions)
   end
