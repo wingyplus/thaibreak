@@ -54,8 +54,8 @@ ExternalProject_Add(libdatrie_ext
 # ---- libthai ----
 ExternalProject_Add(libthai_ext
   DEPENDS  libdatrie_ext
-  URL      https://github.com/tlwg/libthai/releases/download/v0.1.29/libthai-0.1.29.tar.xz
-  URL_HASH SHA256=fc80cc7dcb50e11302b417cebd24f2d30a8b987292e77e003267b9100d0f4bcd
+  URL      https://github.com/tlwg/libthai/releases/download/v0.1.30/libthai-0.1.30.tar.xz
+  URL_HASH SHA256=ddba8b53dfe584c3253766030218a88825488a51a7deef041d096e715af64bdd
   PATCH_COMMAND
     find <SOURCE_DIR> \( -name "Makefile.in" -o -name "configure" -o -name "aclocal.m4" \)
          -exec touch {} +
