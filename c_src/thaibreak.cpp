@@ -1,7 +1,7 @@
-#include <fine.hpp>
 #include <thai/thbrk.h>
 #include <thai/thwbrk.h>
 
+#include <fine.hpp>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -9,8 +9,8 @@
 // Global word breaker instance, initialized in the NIF load callback.
 static ThBrk *g_brk = nullptr;
 
-static const fine::Registration load_reg = fine::Registration::register_load(
-    [](ErlNifEnv *, void **, ERL_NIF_TERM) {
+static const fine::Registration load_reg =
+    fine::Registration::register_load([](ErlNifEnv *, void **, ERL_NIF_TERM) {
       g_brk = th_brk_new(nullptr);
       if (!g_brk) {
         throw std::runtime_error("Failed to initialize Thai word breaker");
@@ -57,7 +57,7 @@ static std::vector<thwchar_t> utf8_to_wchar(const std::string &utf8) {
     result.push_back(cp);
   }
 
-  result.push_back(0); // null terminator
+  result.push_back(0);  // null terminator
   return result;
 }
 
@@ -88,8 +88,7 @@ static std::string wchar_to_utf8(const thwchar_t *wstr) {
 }
 
 // Convert a wide char position (in wchar units) to a UTF-8 byte position.
-static size_t wchar_pos_to_utf8_pos(const std::string &utf8,
-                                    size_t wchar_pos) {
+static size_t wchar_pos_to_utf8_pos(const std::string &utf8, size_t wchar_pos) {
   const unsigned char *s =
       reinterpret_cast<const unsigned char *>(utf8.c_str());
   size_t byte_pos = 0;
@@ -124,8 +123,7 @@ std::vector<int64_t> find_breaks(ErlNifEnv *env, std::string text) {
   std::vector<int64_t> result;
   result.reserve(n);
   for (int i = 0; i < n; i++) {
-    result.push_back(
-        static_cast<int64_t>(wchar_pos_to_utf8_pos(text, pos[i])));
+    result.push_back(static_cast<int64_t>(wchar_pos_to_utf8_pos(text, pos[i])));
   }
 
   return result;
@@ -147,7 +145,7 @@ std::string insert_breaks(ErlNifEnv *env, std::string text, std::string delim) {
   std::vector<thwchar_t> wout(out_sz, 0);
 
   th_brk_wc_insert_breaks(brk, wtext.data(), wout.data(), out_sz,
-                           wdelim.data());
+                          wdelim.data());
 
   return wchar_to_utf8(wout.data());
 }
