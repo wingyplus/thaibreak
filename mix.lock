@@ -1,0 +1,4 @@
+%{
+  "elixir_make": {:git, "https://github.com/elixir-lang/elixir_make.git", "69cd9f4d233a00e5e17c0fa53deedde69e40f621", []},
+  "fine": {:git, "https://github.com/elixir-nx/fine.git", "a1be2f8da69946c6e0c9011ab4933afde408f1bc", []},
+}
