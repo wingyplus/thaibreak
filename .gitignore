@@ -4,3 +4,5 @@
 /_cmake_build/
 erl_crash.dump
 *.beam
+/apt-get
+/autoreconf
