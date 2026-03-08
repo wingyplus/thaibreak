@@ -10,16 +10,31 @@ include(ExternalProject)
 
 # Paths passed in from the Makefile
 set(FINE_INCLUDE_DIR "" CACHE PATH "Path to fine C++ headers")
-set(ERL_INCLUDE_DIR  "" CACHE PATH "Path to Erlang erts include directory")
+set(ERL_INCLUDE_DIR  "" CACHE PATH "Path to Erlang erts include directory (auto-detected if empty)")
 set(PRIV_DIR         "" CACHE PATH "Output directory for the NIF .so")
 
-if(NOT FINE_INCLUDE_DIR OR NOT ERL_INCLUDE_DIR OR NOT PRIV_DIR)
+if(NOT FINE_INCLUDE_DIR OR NOT PRIV_DIR)
   message(FATAL_ERROR
     "Required variables not set. Pass:\n"
     "  -DFINE_INCLUDE_DIR=...\n"
-    "  -DERL_INCLUDE_DIR=...\n"
     "  -DPRIV_DIR=...\n"
   )
+endif()
+
+if(NOT ERL_INCLUDE_DIR)
+  find_program(ERL_EXECUTABLE erl REQUIRED)
+  execute_process(
+    COMMAND ${ERL_EXECUTABLE} -noshell
+      -eval "io:format(\"~s/erts-~s/include\", [code:root_dir(), erlang:system_info(version)])"
+      -s init stop
+    OUTPUT_VARIABLE ERL_INCLUDE_DIR
+    ERROR_QUIET
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+  )
+  if(NOT ERL_INCLUDE_DIR)
+    message(FATAL_ERROR "Could not detect Erlang include directory. Set -DERL_INCLUDE_DIR=... manually.")
+  endif()
+  message(STATUS "Detected Erlang include dir: ${ERL_INCLUDE_DIR}")
 endif()
 
 # ---- Dependencies install prefix ----
