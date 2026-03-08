@@ -68,6 +68,7 @@ ExternalProject_Add(libthai_ext
       CFLAGS=-fPIC
       CPPFLAGS=-I${DEPS_PREFIX}/include
       LDFLAGS=-L${DEPS_PREFIX}/lib
+      PKG_CONFIG_PATH=${DEPS_PREFIX}/lib/pkgconfig
       PATH=${DEPS_PREFIX}/bin:$ENV{PATH}
   BUILD_COMMAND     ${CMAKE_COMMAND} -E env PATH=${DEPS_PREFIX}/bin:$ENV{PATH} make -j4
   INSTALL_COMMAND   ${CMAKE_COMMAND} -E env PATH=${DEPS_PREFIX}/bin:$ENV{PATH} make install
