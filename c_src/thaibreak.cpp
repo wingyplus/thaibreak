@@ -2,22 +2,28 @@
 #include <thai/thbrk.h>
 #include <thai/thwbrk.h>
 
-#include <mutex>
 #include <stdexcept>
 #include <string>
 #include <vector>
 
-// Global word breaker instance (thread-safe access via once_flag)
+// Global word breaker instance, initialized in the NIF load callback.
 static ThBrk *g_brk = nullptr;
-static std::once_flag g_brk_init_flag;
 
-static ThBrk *get_brk() {
-  std::call_once(g_brk_init_flag, []() { g_brk = th_brk_new(nullptr); });
-  if (!g_brk) {
-    throw std::runtime_error("Failed to initialize Thai word breaker");
-  }
-  return g_brk;
-}
+static const fine::Registration load_reg = fine::Registration::register_load(
+    [](ErlNifEnv *, void **, ERL_NIF_TERM) {
+      g_brk = th_brk_new(nullptr);
+      if (!g_brk) {
+        throw std::runtime_error("Failed to initialize Thai word breaker");
+      }
+    });
+
+static const fine::Registration unload_reg =
+    fine::Registration::register_unload([](ErlNifEnv *, void *) {
+      if (g_brk) {
+        th_brk_delete(g_brk);
+        g_brk = nullptr;
+      }
+    });
 
 // Convert UTF-8 string to a null-terminated wide char (UCS-4) vector.
 static std::vector<thwchar_t> utf8_to_wchar(const std::string &utf8) {
@@ -106,7 +112,7 @@ static size_t wchar_pos_to_utf8_pos(const std::string &utf8,
 // Find word break positions in a Thai UTF-8 string.
 // Returns a list of UTF-8 byte positions where word breaks occur.
 std::vector<int64_t> find_breaks(ErlNifEnv *env, std::string text) {
-  ThBrk *brk = get_brk();
+  ThBrk *brk = g_brk;
 
   auto wtext = utf8_to_wchar(text);
   // wtext.size() - 1 to exclude the null terminator
@@ -128,7 +134,7 @@ std::vector<int64_t> find_breaks(ErlNifEnv *env, std::string text) {
 // Insert a delimiter between Thai words in a UTF-8 string.
 // Returns the resulting UTF-8 string with delimiters inserted.
 std::string insert_breaks(ErlNifEnv *env, std::string text, std::string delim) {
-  ThBrk *brk = get_brk();
+  ThBrk *brk = g_brk;
 
   auto wtext = utf8_to_wchar(text);
   auto wdelim = utf8_to_wchar(delim);
